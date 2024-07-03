@@ -23,6 +23,7 @@
 - Показана работа с ValidationPipe
 - Показана работа с Dockerfile, в том числе с builder
 - Показана работа с docker-compose, в том числе networks
+- Сделаны тесты в Github Actions при пуше
 
 ### Что не доделано:
 - Неполное покрытие Unit тестами
