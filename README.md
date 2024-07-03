@@ -1,73 +1,50 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Url shortener
+Проект написан как тестовое задание с целью продемонстрировать базовые навыки в Nest
+Что использовано:
+- NestJS
+- TypeScript
+- ESLint
+- Prettier
+- Redis
+- Jest
+- Docker
+- Docker-compose
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+### Что сделано:
+- Реализована логика создания и получения ссылок
+- Реализовано хранение в Redis
+- Написаны Unit-тесты для сервиса
+- Написаны интеграционные тесты
+- Показана работа с динамическими модулями
+- Показана работа с конфигами (.env файл и просто переменные окружения в зависимости от среды запуска)
+- Сделана валидация переменных конфигурации
+- Показана работа с моками
+- Показана работа с Swagger в NestJs
+- Показана работа с ValidationPipe
+- Показана работа с Dockerfile, в том числе с builder
+- Показана работа с docker-compose, в том числе networks
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+### Что не доделано:
+- Неполное покрытие Unit тестами
+- Неполное покрытие всех сценариев e2e тестами
+- Не описаны все метаданные запросов в Swagger
+- Не описаны ответы с ошибкой в Swagger
+- Не сделан кастомный ExceptionFilter (не вижу смысла натягивать его на глобус)
 
-## Description
+## Принцип работы
+При запросе POST /create-shorten-link генерируется короткая одноразовая ссылка (uuid v4 без знаков тире) и записывается в Redis, после чего отправляется ответом на запрос.
+При запросе GET /:url из Redis получается оригинальная ссылка и удаляется из него (так как ссылка должна быть одноразовая по условию) и отправляется пользователю ответом на запрос
+При попытке получить несуществующую ссылку возвращается 404
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ yarn install
-```
-
-## Running the app
-
-```bash
-# development
-$ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+## Возможные вопросы:
+> Возможна ли коллизия?
+>>В теории да, но ее шанс слишком мал, вероятность описана на википедии:  
+>>> Only after generating 1 billion UUIDs every second for the next 100 years, the probability of creating just one duplicate would be about 50%. Or, to put it another way, the probability of one duplicate would be about 50% if every person on earth owned 600 million UUIDs.
+> 
+> Что можно сделать с возможной коллизией?
+>> Проверять нет ли данного ключа в базе. Тогда тоже можно подумать о вероятности вхождения в бесконечный цикл, если будет такое, что каждый раз генерируются существующие значения. Вероятность этого, конечно, тоже стремится к нулю
+> 
+>> Склеить 2 uuid, тем самым вероятность возведется в квадрат и станет еще ближе к нулю, но тоже не вижу в этом смысла 
+>
+> Почему Redis? 
+>> Объем данных мал, ссылки хранятся недолго, для ускорения работы можно себе позволить использовать его вместо NoSQL или SQL баз данных
