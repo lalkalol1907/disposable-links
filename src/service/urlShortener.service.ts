@@ -10,7 +10,6 @@ export class UrlShortenerService {
   private generateRandomString = () => v4().replaceAll('-', '');
 
   async getOriginalUrl(shortenUrl: string): Promise<string> {
-    console.log(await this.cacheManager.store.keys());
     const originalUrl = await this.cacheManager.get<string>(shortenUrl);
     if (!originalUrl) {
       throw new NotFoundException('Could not find url');
@@ -20,10 +19,8 @@ export class UrlShortenerService {
   }
 
   async createShortenUrl(originalUrl: string): Promise<string> {
-    const preparedUrl = originalUrl.split('//')[1] ?? originalUrl;
-
     const shortenedUrl = this.generateRandomString();
-    await this.cacheManager.set(shortenedUrl, preparedUrl);
+    await this.cacheManager.set(shortenedUrl, originalUrl);
     return shortenedUrl;
   }
 }

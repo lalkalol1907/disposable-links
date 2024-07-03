@@ -1,15 +1,20 @@
-version: 3.0.0
+version: 2.27.0
 services:
   marketlab-back:
     build: .
     ports:
-      - "3000:3000"
+      - "5555:3000"
     environment:
-      NODE_ENV: "production"
       REDIS_PORT: 6379
-      REDIS_HOST: marketlab-redis
-      APP_PORT: 3000
+      REDIS_HOST: "marketlab-redis"
+    networks:
+      - backend
 
   marketlab-redis:
     image: redis:latest
+    networks:
+      - backend
 
+networks:
+  backend:
+    external: false

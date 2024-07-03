@@ -2,7 +2,7 @@ import * as Joi from 'joi';
 
 export default Joi.object({
   NODE_ENV: Joi.string()
-    .valid('development', 'production', 'test', 'provision')
+    .valid('development', 'production', 'test')
     .default('development'),
   REDIS_HOST: Joi.string(),
   REDIS_PORT: Joi.number().port().default(6379),
