@@ -2,26 +2,35 @@ import {
   Body,
   Controller,
   Get,
-  NotFoundException,
   Param,
   Post,
-  Redirect,
   Req,
-  Res,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 
 import { UrlShortenerService } from '../../service/urlShortener.service';
-import { Request, Response } from 'express';
-import { CreateShortenUrlDto } from '../../dto/createShortenUrlDto';
+import { Request } from 'express';
+import { CreateShortenUrlDto } from '../../dto/createShortenUrl.dto';
+import { ApiOkResponse, ApiOperation, ApiParam } from '@nestjs/swagger';
+import { GetOriginalOkResponse } from './Responses/GetOriginalOk.response';
+import { CreateShortenUrlResponse } from './Responses/createShortenUrl.response';
 
 @Controller()
 export class UrlShortenerController {
   constructor(private readonly urlShortenerService: UrlShortenerService) {}
 
   @Get('/:url')
-  async getOriginal(@Param('url') url: string) {
+  @ApiParam({ name: 'url', description: 'Short url' })
+  @ApiOperation({ description: '', summary: '' })
+  @ApiOkResponse({
+    description: '',
+    type: GetOriginalOkResponse,
+  })
+  async getOriginal(
+    @Param('url')
+    url: string,
+  ) {
     const originalUrl = await this.urlShortenerService.getOriginalUrl(url);
 
     return {
@@ -30,12 +39,22 @@ export class UrlShortenerController {
   }
 
   @Post('create-shorten-url')
+  @ApiOkResponse({
+    description: '',
+    type: CreateShortenUrlResponse,
+  })
   @UsePipes(new ValidationPipe())
-  async createLink(@Body() { url }: CreateShortenUrlDto, @Req() req: Request) {
+  async createShortenLink(
+    @Body() { url }: CreateShortenUrlDto,
+    @Req() req: Request,
+  ) {
     const shortenedUrl = await this.urlShortenerService.createShortenUrl(url);
     const host = req.get('Host');
+    const protocol = req.protocol.includes('://')
+      ? req.protocol
+      : req.protocol + '://';
     return {
-      url: req.protocol + host + '/' + shortenedUrl,
+      url: protocol + host + '/' + shortenedUrl,
     };
   }
 }

@@ -2,13 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { UrlShortenerModule } from '../src/module/urlShortener.module';
+import { ConfigModule } from '@nestjs/config';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [UrlShortenerModule],
+      imports: [UrlShortenerModule, ConfigModule.forRoot()],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -16,7 +17,7 @@ describe('AppController (e2e)', () => {
   });
 
   describe('/:url (GET)', () => {
-    it('should redirect to /not_found', async () => {
+    it('should return 404 Not found', async () => {
       const result = await request(app.getHttpServer()).get('/testempty');
 
       expect(result.status).toBe(404);
@@ -41,11 +42,23 @@ describe('AppController (e2e)', () => {
         /http?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g,
       );
 
+      const urlSplit = result.body.url.split('/');
+      const path = urlSplit[urlSplit.length - 1];
+
       await request(app.getHttpServer())
-        .get('/' + result.body.url)
+        .get('/' + path)
         .expect(200)
         .expect({
           url: 'aboba.com',
+        });
+
+      await request(app.getHttpServer())
+        .get('/' + path)
+        .expect(404)
+        .expect({
+          message: 'Could not find url',
+          error: 'Not Found',
+          statusCode: 404,
         });
     });
 
