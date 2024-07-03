@@ -13,8 +13,8 @@ import { UrlShortenerService } from '../../service/urlShortener.service';
 import { Request } from 'express';
 import { CreateShortenUrlDto } from '../../dto/createShortenUrl.dto';
 import { ApiOkResponse, ApiOperation, ApiParam } from '@nestjs/swagger';
-import { GetOriginalOkResponse } from './Responses/GetOriginalOk.response';
-import { CreateShortenUrlResponse } from './Responses/createShortenUrl.response';
+import { GetOriginalOkResponse } from './responses/GetOriginalOk.response';
+import { CreateShortenUrlResponse } from './responses/createShortenUrl.response';
 
 @Controller()
 export class UrlShortenerController {
