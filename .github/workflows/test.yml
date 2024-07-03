@@ -1,7 +1,7 @@
 name: Build and tyes
 on: [push]
 jobs:
-  build-and-test:
+  Build_and_test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,5 +14,5 @@ jobs:
       - name: Build
         run: yarn build
       - name: Unit test
-        run: tarn test
+        run: yarn test
 
