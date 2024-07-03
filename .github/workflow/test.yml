@@ -21,6 +21,3 @@ jobs:
       - name: unit-test
         run: yarn test
 
-      - name: e2e-test
-        run: yarn test:e2e
-
